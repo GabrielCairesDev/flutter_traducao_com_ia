@@ -13,7 +13,19 @@ class TranslatorRepositoryImpl implements TranslatorRepository {
     String from,
     String to,
   ) async {
-    final result = await dataSource.translate(text, from, to);
-    return TranslationResult(result);
+    try {
+      final result = await dataSource.translate(text, from, to);
+      return TranslationResult(result);
+    } catch (e) {
+      throw TranslationException('Erro na tradução: ${e.toString()}');
+    }
   }
+}
+
+class TranslationException implements Exception {
+  final String message;
+  TranslationException(this.message);
+
+  @override
+  String toString() => message;
 }

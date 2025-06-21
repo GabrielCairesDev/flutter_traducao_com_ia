@@ -1,7 +1,12 @@
 import 'package:flutter_traducao_com_ia/core/constants/supported_languages.dart';
 import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 
-class TranslatorDataSource {
+abstract class TranslatorDataSource {
+  Future<String> translate(String text, String from, String to);
+}
+
+class TranslatorDataSourceImpl implements TranslatorDataSource {
+  @override
   Future<String> translate(String text, String from, String to) async {
     final sourceLang = SupportedLanguages.toTranslateLanguage(from);
     final targetLang = SupportedLanguages.toTranslateLanguage(to);

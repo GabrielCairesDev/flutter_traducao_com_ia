@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_traducao_com_ia/core/constants/app_constants.dart';
 import 'package:flutter_traducao_com_ia/core/constants/supported_languages.dart';
-import 'package:flutter_traducao_com_ia/core/data/translation/translator_repository_impl.dart';
+import 'package:flutter_traducao_com_ia/core/di/dependency_injection.dart';
 import 'package:flutter_traducao_com_ia/domain/translation/usecases/translate_text_usecase.dart';
 import 'package:flutter_traducao_com_ia/presentation/home/viewmodel/home_view_model.dart';
 import 'package:flutter_traducao_com_ia/shared/widgets/language_button_widget.dart';
-import 'package:flutter_traducao_com_ia/core/data/translation/translator_data_source.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -14,14 +14,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final vm = HomeViewModel(
-    TranslateTextUseCase(TranslatorRepositoryImpl(TranslatorDataSource())),
-  );
+  late final HomeViewModel vm;
 
   @override
   void initState() {
     super.initState();
-    vm.changeLanguage(SupportedLanguages.pt);
+    vm = HomeViewModel(getIt<TranslateTextUseCase>());
+    // Inicializa com tradução para português
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      vm.changeLanguage(SupportedLanguages.pt);
+    });
   }
 
   @override
@@ -37,25 +39,43 @@ class _HomeState extends State<Home> {
                 if (vm.isLoading)
                   const CircularProgressIndicator()
                 else if (vm.error != null)
-                  Text(vm.error!, style: const TextStyle(color: Colors.red))
+                  Column(
+                    children: [
+                      Text(
+                        vm.error!,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppConstants.buttonSpacing),
+                      TextButton(
+                        onPressed: vm.clearError,
+                        child: Text(AppConstants.tryAgainText),
+                      ),
+                    ],
+                  )
                 else
-                  Text(vm.title, style: const TextStyle(fontSize: 24)),
-                const SizedBox(height: 48),
+                  Text(
+                    vm.title,
+                    style: TextStyle(fontSize: AppConstants.titleFontSize),
+                  ),
+                const SizedBox(height: AppConstants.mainSpacing),
                 Column(
                   children: [
                     LanguageButtonWidget(
                       flagEmoji: '🇧🇷',
-                      language: 'Português',
+                      language: AppConstants.portugueseText,
                       onPressed: () => vm.changeLanguage(SupportedLanguages.pt),
                     ),
+                    const SizedBox(height: AppConstants.buttonSpacing),
                     LanguageButtonWidget(
                       flagEmoji: '🇺🇸',
-                      language: 'Inglês',
+                      language: AppConstants.englishText,
                       onPressed: () => vm.changeLanguage(SupportedLanguages.en),
                     ),
+                    const SizedBox(height: AppConstants.buttonSpacing),
                     LanguageButtonWidget(
                       flagEmoji: '🇪🇸',
-                      language: 'Espanhol',
+                      language: AppConstants.spanishText,
                       onPressed: () => vm.changeLanguage(SupportedLanguages.es),
                     ),
                   ],
@@ -66,5 +86,11 @@ class _HomeState extends State<Home> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    // Clean up resources if needed
+    super.dispose();
   }
 }
