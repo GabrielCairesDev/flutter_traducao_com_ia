@@ -38,8 +38,7 @@ dependencies:
   # Google ML Kit Translation
   google_mlkit_translation: ^0.13.0
   
-  # Provider for state management
-  provider: ^6.1.1
+  # GetIt for dependency injection
   get_it: ^8.0.3
 
 dev_dependencies:
